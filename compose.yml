@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpass
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
+      - ./mysql/logs:/var/log/mysql
+    # command: >
+    #   mysqld
+    #   --slow_query_log=1
+    #   --slow_query_log_file=/var/log/mysql/slow.log
+    #   --long_query_time=2
+    #   --log_queries_not_using_indexes=1
+    #   --log_slow_admin_statements=1
+
+  # 分析専用コンテナ
+  percona-toolkit:
+    image: perconalab/percona-toolkit:latest
+    container_name: percona-toolkit
+    volumes:
+      - ./mysql/logs:/logs:ro
+      - ./reports:/reports
+    depends_on:
+      - mysql
+    # 常時起動させない（分析時のみ起動）
+    profiles:
+      - analysis
+    command: tail -f /dev/null
+
+   # リアルタイムアラート監視
+  slow-monitor:
+    build: ./monitor
+    container_name: slow-monitor
+    environment:
+      # - SLACK_WEBHOOK=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      # - DISCORD_WEBHOOK=
+      - CRITICAL_THRESHOLD=10
+      - WARNING_THRESHOLD=5
+    volumes:
+      - ./mysql/logs:/logs:ro
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
