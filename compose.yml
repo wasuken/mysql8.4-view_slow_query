@@ -39,11 +39,8 @@ services:
   slow-monitor:
     build: ./monitor
     container_name: slow-monitor
-    environment:
-      # - SLACK_WEBHOOK=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
-      # - DISCORD_WEBHOOK=
-      - CRITICAL_THRESHOLD=10
-      - WARNING_THRESHOLD=5
+    env_file:
+      - .env
     volumes:
       - ./mysql/logs:/logs:ro
     depends_on:

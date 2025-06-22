@@ -1,8 +1,8 @@
 .PHONY: start stop analyze report clean
 
-# MySQL起動
+# docker compose起動
 start:
-	docker compose up -d mysql
+	docker compose up -d
 	@echo "MySQL started. Waiting for initialization..."
 	@sleep 10
 
