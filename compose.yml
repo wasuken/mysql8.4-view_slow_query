@@ -43,12 +43,30 @@ services:
   pmm-server:
     image: percona/pmm-server:3
     container_name: pmm-server
+    # environment:
+    #   PMM_WATCHTOWER_HOST: http://watchtower:8080
+    #   PMM_WATCHTOWER_TOKEN: watchtower
     ports:
       - "8081:80"  # ポート変更
       - "443:8443"
     volumes:
       - pmm-data:/srv
     restart: unless-stopped
+
+  # watchtower:
+  #   image: percona/watchtower:latest
+  #   container_name: watchtower
+  #   restart: always
+  #   environment:
+  #     - WATCHTOWER_HTTP_API_TOKEN=watchtower
+  #     - WATCHTOWER_HTTP_API_UPDATE=1
+  #     - WATCHTOWER_POLL_INTERVAL=87600
+  #     - WATCHTOWER_CLEANUP=true
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   depends_on:
+  #     - pmm-server
+  #     - mysql
 
 volumes:
   mysql_data:
