@@ -13,13 +13,6 @@ services:
       - mysql_data:/var/lib/mysql
       - ./mysql/conf.d:/etc/mysql/conf.d
       - ./mysql/logs:/var/log/mysql
-    # command: >
-    #   mysqld
-    #   --slow_query_log=1
-    #   --slow_query_log_file=/var/log/mysql/slow.log
-    #   --long_query_time=2
-    #   --log_queries_not_using_indexes=1
-    #   --log_slow_admin_statements=1
 
   # 分析専用コンテナ
   percona-toolkit:
@@ -47,5 +40,16 @@ services:
       - mysql
     restart: unless-stopped
 
+  pmm-server:
+    image: percona/pmm-server:3
+    container_name: pmm-server
+    ports:
+      - "8081:80"  # ポート変更
+      - "443:8443"
+    volumes:
+      - pmm-data:/srv
+    restart: unless-stopped
+
 volumes:
   mysql_data:
+  pmm-data:
